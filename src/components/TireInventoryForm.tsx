@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import './TireInventoryForm.css';
+const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:3002';
 
 interface TireData {
   brand: string;
@@ -42,7 +43,7 @@ const TireInventoryForm: React.FC = () => {
     e.preventDefault();
 
     try {
-      const response = await fetch('http://localhost:3002/api/inventory/insert', {
+      const response = await fetch(`${apiUrl}/api/inventory/insert`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

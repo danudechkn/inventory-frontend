@@ -25,7 +25,8 @@ const InventoryList: React.FC = () => {
   const fetchInventory = async () => {
     try {
       setLoading(true);
-      const response = await fetch('http://localhost:3002/api/inventory/get');
+      const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:3002';
+      const response = await fetch(`${apiUrl}/api/inventory/get`);
       if (!response.ok) {
         throw new Error('Failed to fetch data');
       }
