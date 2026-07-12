@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import TireInventoryForm from './components/TireInventoryForm';
 import InventoryList from './components/InventoryList';
 import './App.css';
@@ -9,13 +9,13 @@ function App() {
   return (
     <div className="app-container">
       <div className="tabs">
-        <button 
+        <button
           className={`tab-btn ${activeTab === 'form' ? 'active' : ''}`}
           onClick={() => setActiveTab('form')}
         >
           Add Inventory
         </button>
-        <button 
+        <button
           className={`tab-btn ${activeTab === 'list' ? 'active' : ''}`}
           onClick={() => setActiveTab('list')}
         >
