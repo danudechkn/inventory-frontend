@@ -1,0 +1,119 @@
+.list-container {
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 24px;
+  padding: 40px;
+  max-width: 1000px;
+  width: 100%;
+  box-shadow: 0 16px 40px 0 rgba(0, 0, 0, 0.4);
+  color: #fff;
+  font-family: 'Inter', sans-serif;
+  animation: fadeIn 0.6s ease-out;
+}
+
+.list-header {
+  text-align: center;
+  margin-bottom: 30px;
+}
+
+.list-header h2 {
+  margin: 0;
+  font-size: 32px;
+  font-weight: 700;
+  background: linear-gradient(135deg, #00C9FF 0%, #92FE9D 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  letter-spacing: -0.5px;
+}
+
+.list-header p {
+  margin-top: 10px;
+  color: #94a3b8;
+  font-size: 15px;
+}
+
+.table-responsive {
+  overflow-x: auto;
+}
+
+.inventory-table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+}
+
+.inventory-table th,
+.inventory-table td {
+  padding: 14px 16px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.inventory-table th {
+  background: rgba(15, 23, 42, 0.4);
+  font-weight: 600;
+  color: #cbd5e1;
+  font-size: 13px;
+  letter-spacing: 0.5px;
+  white-space: nowrap;
+}
+
+.inventory-table td {
+  font-size: 14px;
+  color: #e2e8f0;
+}
+
+.inventory-table tbody tr {
+  transition: background-color 0.2s ease;
+}
+
+.inventory-table tbody tr:hover {
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.brand-cell {
+  font-weight: 600;
+  color: #00C9FF !important;
+}
+
+.qty-in {
+  color: #4ade80 !important;
+}
+
+.qty-out {
+  color: #f87171 !important;
+}
+
+.qty-balance {
+  font-weight: 700;
+  color: #fff !important;
+}
+
+.empty-state {
+  text-align: center;
+  padding: 40px !important;
+  color: #64748b !important;
+}
+
+.loading-state,
+.error-state {
+  text-align: center;
+  padding: 40px;
+  color: #e2e8f0;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 24px;
+  font-family: 'Inter', sans-serif;
+}
+
+.error-state {
+  color: #f87171;
+}
+
+@media (max-width: 768px) {
+  .list-container {
+    padding: 20px;
+    border-radius: 20px;
+  }
+}
