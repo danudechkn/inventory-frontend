@@ -18,6 +18,12 @@ const InventoryList: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
+  const [filterId, setFilterId] = useState('');
+  const [filterBrand, setFilterBrand] = useState('');
+  const [filterModel, setFilterModel] = useState('');
+  const [filterSize, setFilterSize] = useState('');
+  const [filterYear, setFilterYear] = useState('');
+
   useEffect(() => {
     fetchInventory();
   }, []);
@@ -42,6 +48,16 @@ const InventoryList: React.FC = () => {
   if (loading) return <div className="loading-state">กำลังโหลดข้อมูล...</div>;
   if (error) return <div className="error-state">Error: {error}</div>;
 
+  const filteredInventory = inventory.filter((item) => {
+    return (
+      (filterId === '' || item.id.toString().includes(filterId)) &&
+      (filterBrand === '' || item.brand.toLowerCase().includes(filterBrand.toLowerCase())) &&
+      (filterModel === '' || item.model.toLowerCase().includes(filterModel.toLowerCase())) &&
+      (filterSize === '' || item.tire_size.toLowerCase().includes(filterSize.toLowerCase())) &&
+      (filterYear === '' || item.manufacturing_year.toLowerCase().includes(filterYear.toLowerCase()))
+    );
+  });
+
   return (
     <div className="list-container">
       <div className="list-header">
@@ -63,14 +79,25 @@ const InventoryList: React.FC = () => {
               <th>Out / ขายออก</th>
               <th>Balance / คงเหลือ</th>
             </tr>
+            <tr className="filter-row">
+              <th><input type="text" placeholder="Filter..." value={filterId} onChange={(e) => setFilterId(e.target.value)} style={{ width: '100%', padding: '4px', boxSizing: 'border-box' }} /></th>
+              <th><input type="text" placeholder="Filter..." value={filterBrand} onChange={(e) => setFilterBrand(e.target.value)} style={{ width: '100%', padding: '4px', boxSizing: 'border-box' }} /></th>
+              <th><input type="text" placeholder="Filter..." value={filterModel} onChange={(e) => setFilterModel(e.target.value)} style={{ width: '100%', padding: '4px', boxSizing: 'border-box' }} /></th>
+              <th><input type="text" placeholder="Filter..." value={filterSize} onChange={(e) => setFilterSize(e.target.value)} style={{ width: '100%', padding: '4px', boxSizing: 'border-box' }} /></th>
+              <th><input type="text" placeholder="Filter..." value={filterYear} onChange={(e) => setFilterYear(e.target.value)} style={{ width: '100%', padding: '4px', boxSizing: 'border-box' }} /></th>
+              <th></th>
+              <th></th>
+              <th></th>
+              <th></th>
+            </tr>
           </thead>
           <tbody>
-            {inventory.length === 0 ? (
+            {filteredInventory.length === 0 ? (
               <tr>
                 <td colSpan={9} className="empty-state">ไม่มีข้อมูลในระบบ</td>
               </tr>
             ) : (
-              inventory.map((item) => (
+              filteredInventory.map((item) => (
                 <tr key={item.id}>
                   <td>{item.id}</td>
                   <td className="brand-cell">{item.brand}</td>
