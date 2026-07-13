@@ -18,11 +18,7 @@ const InventoryList: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const [filterId, setFilterId] = useState('');
-  const [filterBrand, setFilterBrand] = useState('');
-  const [filterModel, setFilterModel] = useState('');
-  const [filterSize, setFilterSize] = useState('');
-  const [filterYear, setFilterYear] = useState('');
+  const [searchTerm, setSearchTerm] = useState('');
 
   useEffect(() => {
     fetchInventory();
@@ -49,12 +45,12 @@ const InventoryList: React.FC = () => {
   if (error) return <div className="error-state">Error: {error}</div>;
 
   const filteredInventory = inventory.filter((item) => {
+    if (!searchTerm) return true;
+    const term = searchTerm.toLowerCase();
     return (
-      (filterId === '' || item.id.toString().includes(filterId)) &&
-      (filterBrand === '' || item.brand.toLowerCase().includes(filterBrand.toLowerCase())) &&
-      (filterModel === '' || item.model.toLowerCase().includes(filterModel.toLowerCase())) &&
-      (filterSize === '' || item.tire_size.toLowerCase().includes(filterSize.toLowerCase())) &&
-      (filterYear === '' || item.manufacturing_year.toLowerCase().includes(filterYear.toLowerCase()))
+      (item.brand && item.brand.toLowerCase().includes(term)) ||
+      (item.tire_size && item.tire_size.toLowerCase().includes(term)) ||
+      (item.manufacturing_year && item.manufacturing_year.toLowerCase().includes(term))
     );
   });
 
@@ -64,7 +60,18 @@ const InventoryList: React.FC = () => {
         <h2>Inventory Data</h2>
         <p>รายการสินค้าคงคลังยางรถยนต์ทั้งหมด</p>
       </div>
-      
+
+      <div className="search-container" style={{ marginBottom: '16px' }}>
+        <input 
+          type="text" 
+          placeholder="ค้นหายี่ห้อ, ขนาด หรือปี..." 
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          className="search-input"
+          style={{ width: '100%', maxWidth: '400px', padding: '10px', borderRadius: '4px', border: '1px solid #ccc' }}
+        />
+      </div>
+
       <div className="table-responsive">
         <table className="inventory-table">
           <thead>
@@ -79,22 +86,12 @@ const InventoryList: React.FC = () => {
               <th>Out / ขายออก</th>
               <th>Balance / คงเหลือ</th>
             </tr>
-            <tr className="filter-row">
-              <th><input type="text" placeholder="Filter..." value={filterId} onChange={(e) => setFilterId(e.target.value)} style={{ width: '100%', padding: '4px', boxSizing: 'border-box' }} /></th>
-              <th><input type="text" placeholder="Filter..." value={filterBrand} onChange={(e) => setFilterBrand(e.target.value)} style={{ width: '100%', padding: '4px', boxSizing: 'border-box' }} /></th>
-              <th><input type="text" placeholder="Filter..." value={filterModel} onChange={(e) => setFilterModel(e.target.value)} style={{ width: '100%', padding: '4px', boxSizing: 'border-box' }} /></th>
-              <th><input type="text" placeholder="Filter..." value={filterSize} onChange={(e) => setFilterSize(e.target.value)} style={{ width: '100%', padding: '4px', boxSizing: 'border-box' }} /></th>
-              <th><input type="text" placeholder="Filter..." value={filterYear} onChange={(e) => setFilterYear(e.target.value)} style={{ width: '100%', padding: '4px', boxSizing: 'border-box' }} /></th>
-              <th></th>
-              <th></th>
-              <th></th>
-              <th></th>
-            </tr>
+
           </thead>
           <tbody>
             {filteredInventory.length === 0 ? (
               <tr>
-                <td colSpan={9} className="empty-state">ไม่มีข้อมูลในระบบ</td>
+                <td colSpan={9} className="empty-state">ไม่พบข้อมูลที่ค้นหา</td>
               </tr>
             ) : (
               filteredInventory.map((item) => (
