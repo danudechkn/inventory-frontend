@@ -7,7 +7,7 @@ interface InventoryItem {
   model: string;
   tire_size: string;
   manufacturing_year: string;
-  unit_price: number;
+  unit_price: string | number;
   purchased_qty: number;
   sold_qty: number;
   remarks: string;
@@ -114,7 +114,7 @@ const InventoryList: React.FC = () => {
                   <td>{item.model}</td>
                   <td>{item.tire_size}</td>
                   <td>{item.manufacturing_year}</td>
-                  <td>฿{item.unit_price.toLocaleString()}</td>
+                  <td>฿{typeof item.unit_price === 'number' ? item.unit_price.toLocaleString() : (Number(item.unit_price) ? Number(item.unit_price).toLocaleString() : item.unit_price)}</td>
                   <td className="qty-in">{item.purchased_qty}</td>
                   <td className="qty-out">{item.sold_qty}</td>
                   <td className="qty-balance">

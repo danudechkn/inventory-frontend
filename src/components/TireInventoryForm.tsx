@@ -7,7 +7,7 @@ interface TireData {
   model: string;
   tire_size: string;
   manufacturing_year: string;
-  unit_price: number | '';
+  unit_price: string | number;
   purchased_qty: number | '';
   sold_qty: number | '';
   remarks: string;
@@ -29,7 +29,7 @@ const TireInventoryForm: React.FC = () => {
     const { name, value } = e.target;
 
     // Convert to number for specific fields
-    const numberFields = ['unit_price', 'purchased_qty', 'sold_qty'];
+    const numberFields = ['purchased_qty', 'sold_qty'];
     let finalValue: string | number = value;
 
     if (numberFields.includes(name) && value !== '') {
@@ -153,13 +153,12 @@ const TireInventoryForm: React.FC = () => {
         <div className="form-group">
           <label htmlFor="unit_price">Unit Price / ราคาต่อหน่วย</label>
           <input
-            type="number"
+            type="text"
             id="unit_price"
             name="unit_price"
-            placeholder="e.g. 4500"
+            placeholder="e.g. 4500 หรือ ข้อความ"
             value={formData.unit_price}
             onChange={handleChange}
-            min="0"
             required
           />
         </div>
