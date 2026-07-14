@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useMemo, useDeferredValue } from 'react';
+import React, { useEffect, useState } from 'react';
 import './InventoryList.css';
 
 interface InventoryItem {
@@ -65,7 +65,7 @@ const InventoryList: React.FC = () => {
         body: JSON.stringify(editForm),
       });
       if (!response.ok) throw new Error('Failed to update item');
-      
+
       setInventory(inventory.map((item) => (item.id === id ? { ...item, ...editForm as InventoryItem } : item)));
       setEditingId(null);
     } catch (err: any) {
@@ -81,7 +81,7 @@ const InventoryList: React.FC = () => {
         method: 'DELETE',
       });
       if (!response.ok) throw new Error('Failed to delete item');
-      
+
       setInventory(inventory.filter((item) => item.id !== id));
     } catch (err: any) {
       alert(err.message || 'Error deleting item');
@@ -91,19 +91,13 @@ const InventoryList: React.FC = () => {
   if (loading) return <div className="loading-state">กำลังโหลดข้อมูล...</div>;
   if (error) return <div className="error-state">Error: {error}</div>;
 
-  const deferredSearchBrand = useDeferredValue(searchBrand);
-  const deferredSearchSize = useDeferredValue(searchSize);
-  const deferredSearchYear = useDeferredValue(searchYear);
-
-  const filteredInventory = useMemo(() => {
-    return inventory.filter((item) => {
-      return (
-        (!deferredSearchBrand || (item.brand && item.brand.toLowerCase().includes(deferredSearchBrand.toLowerCase()))) &&
-        (!deferredSearchSize || (item.tire_size && item.tire_size.toLowerCase().includes(deferredSearchSize.toLowerCase()))) &&
-        (!deferredSearchYear || (item.manufacturing_year && item.manufacturing_year.toLowerCase().includes(deferredSearchYear.toLowerCase())))
-      );
-    });
-  }, [inventory, deferredSearchBrand, deferredSearchSize, deferredSearchYear]);
+  const filteredInventory = inventory.filter((item) => {
+    return (
+      (!searchBrand || (item.brand && item.brand.toLowerCase().includes(searchBrand.toLowerCase()))) &&
+      (!searchSize || (item.tire_size && item.tire_size.toLowerCase().includes(searchSize.toLowerCase()))) &&
+      (!searchYear || (item.manufacturing_year && item.manufacturing_year.toLowerCase().includes(searchYear.toLowerCase())))
+    );
+  });
 
   return (
     <div className="list-container">
@@ -113,23 +107,23 @@ const InventoryList: React.FC = () => {
       </div>
 
       <div className="search-container">
-        <input 
-          type="text" 
-          placeholder="ค้นหายี่ห้อ (Brand)" 
+        <input
+          type="text"
+          placeholder="ค้นหายี่ห้อ (Brand)"
           value={searchBrand}
           onChange={(e) => setSearchBrand(e.target.value)}
           className="search-input"
         />
-        <input 
-          type="text" 
-          placeholder="ค้นหาขนาดยาง (Size)" 
+        <input
+          type="text"
+          placeholder="ค้นหาขนาดยาง (Size)"
           value={searchSize}
           onChange={(e) => setSearchSize(e.target.value)}
           className="search-input"
         />
-        <input 
-          type="text" 
-          placeholder="ค้นหาปีที่ผลิต (Year)" 
+        <input
+          type="text"
+          placeholder="ค้นหาปีที่ผลิต (Year)"
           value={searchYear}
           onChange={(e) => setSearchYear(e.target.value)}
           className="search-input"
