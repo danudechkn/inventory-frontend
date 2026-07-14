@@ -61,14 +61,13 @@ const InventoryList: React.FC = () => {
         <p>รายการสินค้าคงคลังยางรถยนต์ทั้งหมด</p>
       </div>
 
-      <div className="search-container" style={{ marginBottom: '16px', display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
+      <div className="search-container">
         <input 
           type="text" 
           placeholder="ค้นหายี่ห้อ (Brand)" 
           value={searchBrand}
           onChange={(e) => setSearchBrand(e.target.value)}
           className="search-input"
-          style={{ flex: 1, minWidth: '200px', padding: '10px', borderRadius: '4px', border: '1px solid #ccc' }}
         />
         <input 
           type="text" 
@@ -76,7 +75,6 @@ const InventoryList: React.FC = () => {
           value={searchSize}
           onChange={(e) => setSearchSize(e.target.value)}
           className="search-input"
-          style={{ flex: 1, minWidth: '200px', padding: '10px', borderRadius: '4px', border: '1px solid #ccc' }}
         />
         <input 
           type="text" 
@@ -84,7 +82,6 @@ const InventoryList: React.FC = () => {
           value={searchYear}
           onChange={(e) => setSearchYear(e.target.value)}
           className="search-input"
-          style={{ flex: 1, minWidth: '200px', padding: '10px', borderRadius: '4px', border: '1px solid #ccc' }}
         />
       </div>
 
