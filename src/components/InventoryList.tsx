@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useMemo, useDeferredValue } from 'react';
 import './InventoryList.css';
 
 interface InventoryItem {
@@ -91,13 +91,19 @@ const InventoryList: React.FC = () => {
   if (loading) return <div className="loading-state">กำลังโหลดข้อมูล...</div>;
   if (error) return <div className="error-state">Error: {error}</div>;
 
-  const filteredInventory = inventory.filter((item) => {
-    return (
-      (!searchBrand || (item.brand && item.brand.toLowerCase().includes(searchBrand.toLowerCase()))) &&
-      (!searchSize || (item.tire_size && item.tire_size.toLowerCase().includes(searchSize.toLowerCase()))) &&
-      (!searchYear || (item.manufacturing_year && item.manufacturing_year.toLowerCase().includes(searchYear.toLowerCase())))
-    );
-  });
+  const deferredSearchBrand = useDeferredValue(searchBrand);
+  const deferredSearchSize = useDeferredValue(searchSize);
+  const deferredSearchYear = useDeferredValue(searchYear);
+
+  const filteredInventory = useMemo(() => {
+    return inventory.filter((item) => {
+      return (
+        (!deferredSearchBrand || (item.brand && item.brand.toLowerCase().includes(deferredSearchBrand.toLowerCase()))) &&
+        (!deferredSearchSize || (item.tire_size && item.tire_size.toLowerCase().includes(deferredSearchSize.toLowerCase()))) &&
+        (!deferredSearchYear || (item.manufacturing_year && item.manufacturing_year.toLowerCase().includes(deferredSearchYear.toLowerCase())))
+      );
+    });
+  }, [inventory, deferredSearchBrand, deferredSearchSize, deferredSearchYear]);
 
   return (
     <div className="list-container">
