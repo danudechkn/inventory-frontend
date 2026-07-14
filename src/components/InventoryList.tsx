@@ -22,6 +22,9 @@ const InventoryList: React.FC = () => {
   const [searchSize, setSearchSize] = useState('');
   const [searchYear, setSearchYear] = useState('');
 
+  const [editingId, setEditingId] = useState<number | null>(null);
+  const [editForm, setEditForm] = useState<Partial<InventoryItem>>({});
+
   useEffect(() => {
     fetchInventory();
   }, []);
@@ -40,6 +43,48 @@ const InventoryList: React.FC = () => {
       setError(err.message || 'An error occurred');
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleEditClick = (item: InventoryItem) => {
+    setEditingId(item.id);
+    setEditForm(item);
+  };
+
+  const handleCancelEdit = () => {
+    setEditingId(null);
+    setEditForm({});
+  };
+
+  const handleSaveEdit = async (id: number) => {
+    try {
+      const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:3002';
+      const response = await fetch(`${apiUrl}/api/inventory/update/${id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(editForm),
+      });
+      if (!response.ok) throw new Error('Failed to update item');
+      
+      setInventory(inventory.map((item) => (item.id === id ? { ...item, ...editForm as InventoryItem } : item)));
+      setEditingId(null);
+    } catch (err: any) {
+      alert(err.message || 'Error updating item');
+    }
+  };
+
+  const handleDelete = async (id: number) => {
+    if (!window.confirm('คุณแน่ใจหรือไม่ว่าต้องการลบรายการนี้?')) return;
+    try {
+      const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:3002';
+      const response = await fetch(`${apiUrl}/api/inventory/delete/${id}`, {
+        method: 'DELETE',
+      });
+      if (!response.ok) throw new Error('Failed to delete item');
+      
+      setInventory(inventory.filter((item) => item.id !== id));
+    } catch (err: any) {
+      alert(err.message || 'Error deleting item');
     }
   };
 
@@ -98,30 +143,55 @@ const InventoryList: React.FC = () => {
               <th>In / รับเข้า</th>
               <th>Out / ขายออก</th>
               <th>Balance / คงเหลือ</th>
+              <th>Actions / จัดการ</th>
             </tr>
 
           </thead>
           <tbody>
             {filteredInventory.length === 0 ? (
               <tr>
-                <td colSpan={9} className="empty-state">ไม่พบข้อมูลที่ค้นหา</td>
+                <td colSpan={10} className="empty-state">ไม่พบข้อมูลที่ค้นหา</td>
               </tr>
             ) : (
-              filteredInventory.map((item) => (
-                <tr key={item.id}>
-                  <td>{item.id}</td>
-                  <td className="brand-cell">{item.brand}</td>
-                  <td>{item.model}</td>
-                  <td>{item.tire_size}</td>
-                  <td>{item.manufacturing_year}</td>
-                  <td>฿{typeof item.unit_price === 'number' ? item.unit_price.toLocaleString() : (Number(item.unit_price) ? Number(item.unit_price).toLocaleString() : item.unit_price)}</td>
-                  <td className="qty-in">{item.purchased_qty}</td>
-                  <td className="qty-out">{item.sold_qty}</td>
-                  <td className="qty-balance">
-                    {item.purchased_qty - item.sold_qty}
-                  </td>
-                </tr>
-              ))
+              filteredInventory.map((item) => {
+                const isEditing = editingId === item.id;
+                return (
+                  <tr key={item.id}>
+                    <td>{item.id}</td>
+                    {isEditing ? (
+                      <>
+                        <td><input type="text" value={editForm.brand || ''} onChange={(e) => setEditForm({ ...editForm, brand: e.target.value })} className="edit-input" /></td>
+                        <td><input type="text" value={editForm.model || ''} onChange={(e) => setEditForm({ ...editForm, model: e.target.value })} className="edit-input" /></td>
+                        <td><input type="text" value={editForm.tire_size || ''} onChange={(e) => setEditForm({ ...editForm, tire_size: e.target.value })} className="edit-input" /></td>
+                        <td><input type="text" value={editForm.manufacturing_year || ''} onChange={(e) => setEditForm({ ...editForm, manufacturing_year: e.target.value })} className="edit-input" /></td>
+                        <td><input type="number" value={editForm.unit_price || ''} onChange={(e) => setEditForm({ ...editForm, unit_price: e.target.value })} className="edit-input" /></td>
+                        <td><input type="number" value={editForm.purchased_qty || ''} onChange={(e) => setEditForm({ ...editForm, purchased_qty: parseInt(e.target.value) || 0 })} className="edit-input" /></td>
+                        <td><input type="number" value={editForm.sold_qty || ''} onChange={(e) => setEditForm({ ...editForm, sold_qty: parseInt(e.target.value) || 0 })} className="edit-input" /></td>
+                        <td className="qty-balance">{(editForm.purchased_qty || 0) - (editForm.sold_qty || 0)}</td>
+                        <td className="actions-cell">
+                          <button onClick={() => handleSaveEdit(item.id)} className="save-btn">Save</button>
+                          <button onClick={handleCancelEdit} className="cancel-btn">Cancel</button>
+                        </td>
+                      </>
+                    ) : (
+                      <>
+                        <td className="brand-cell">{item.brand}</td>
+                        <td>{item.model}</td>
+                        <td>{item.tire_size}</td>
+                        <td>{item.manufacturing_year}</td>
+                        <td>฿{typeof item.unit_price === 'number' ? item.unit_price.toLocaleString() : (Number(item.unit_price) ? Number(item.unit_price).toLocaleString() : item.unit_price)}</td>
+                        <td className="qty-in">{item.purchased_qty}</td>
+                        <td className="qty-out">{item.sold_qty}</td>
+                        <td className="qty-balance">{item.purchased_qty - item.sold_qty}</td>
+                        <td className="actions-cell">
+                          <button onClick={() => handleEditClick(item)} className="edit-btn">Edit</button>
+                          <button onClick={() => handleDelete(item.id)} className="delete-btn">Delete</button>
+                        </td>
+                      </>
+                    )}
+                  </tr>
+                );
+              })
             )}
           </tbody>
         </table>
