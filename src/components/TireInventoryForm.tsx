@@ -92,7 +92,7 @@ const TireInventoryForm: React.FC = () => {
             className="form-select"
           >
             <option value="" disabled>Select Brand</option>
-            <option value="YOGO">YOGO</option>
+            <option value="YOKO">YOKO</option>
             <option value="MAXXIS">MAXXIS</option>
             <option value="GITI">GITI</option>
             <option value="CON">CON</option>

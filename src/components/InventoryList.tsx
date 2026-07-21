@@ -164,7 +164,7 @@ const InventoryList: React.FC = () => {
                         <td><input type="text" value={editForm.model || ''} onChange={(e) => setEditForm({ ...editForm, model: e.target.value })} className="edit-input" /></td>
                         <td><input type="text" value={editForm.tire_size || ''} onChange={(e) => setEditForm({ ...editForm, tire_size: e.target.value })} className="edit-input" /></td>
                         <td><input type="text" value={editForm.manufacturing_year || ''} onChange={(e) => setEditForm({ ...editForm, manufacturing_year: e.target.value })} className="edit-input" /></td>
-                        <td><input type="number" value={editForm.unit_price || ''} onChange={(e) => setEditForm({ ...editForm, unit_price: e.target.value })} className="edit-input" /></td>
+                        <td><input type="text" value={editForm.unit_price != null ? String(editForm.unit_price) : ''} onChange={(e) => setEditForm({ ...editForm, unit_price: e.target.value })} className="edit-input" /></td>
                         <td><input type="number" value={editForm.purchased_qty || ''} onChange={(e) => setEditForm({ ...editForm, purchased_qty: parseInt(e.target.value) || 0 })} className="edit-input" /></td>
                         <td><input type="number" value={editForm.sold_qty || ''} onChange={(e) => setEditForm({ ...editForm, sold_qty: parseInt(e.target.value) || 0 })} className="edit-input" /></td>
                         <td className="qty-balance">{(editForm.purchased_qty || 0) - (editForm.sold_qty || 0)}</td>
@@ -179,7 +179,7 @@ const InventoryList: React.FC = () => {
                         <td>{item.model}</td>
                         <td>{item.tire_size}</td>
                         <td>{item.manufacturing_year}</td>
-                        <td>฿{typeof item.unit_price === 'number' ? item.unit_price.toLocaleString() : (Number(item.unit_price) ? Number(item.unit_price).toLocaleString() : item.unit_price)}</td>
+                        <td>{(() => { const p = item.unit_price; const n = Number(p); return !isNaN(n) && p !== '' ? `฿${n.toLocaleString()}` : String(p); })()}</td>
                         <td className="qty-in">{item.purchased_qty}</td>
                         <td className="qty-out">{item.sold_qty}</td>
                         <td className="qty-balance">{item.purchased_qty - item.sold_qty}</td>
