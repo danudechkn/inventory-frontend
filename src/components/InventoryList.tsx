@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback, useRef } from 'react';
 import './InventoryList.css';
 
 interface InventoryItem {
@@ -13,6 +13,9 @@ interface InventoryItem {
   remarks: string;
 }
 
+// คงที่นอก component เพื่อไม่ให้สร้างซ้ำทุก render
+const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:3002';
+
 const InventoryList: React.FC = () => {
   const [inventory, setInventory] = useState<InventoryItem[]>([]);
   const [loading, setLoading] = useState(true);
@@ -25,26 +28,29 @@ const InventoryList: React.FC = () => {
   const [editingId, setEditingId] = useState<number | null>(null);
   const [editForm, setEditForm] = useState<Partial<InventoryItem>>({});
 
-  useEffect(() => {
-    fetchInventory();
-  }, []);
+  // เก็บ snapshot เดิมไว้ revert ถ้า server error
+  const prevInventoryRef = useRef<InventoryItem[]>([]);
 
-  const fetchInventory = async () => {
+  const fetchInventory = useCallback(async (silent = false) => {
     try {
-      setLoading(true);
-      const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:3002';
-      const response = await fetch(`${apiUrl}/api/inventory/get`);
-      if (!response.ok) {
-        throw new Error('Failed to fetch data');
-      }
+      if (!silent) setLoading(true);
+      const response = await fetch(`${apiUrl}/api/inventory/get`, {
+        headers: { 'Cache-Control': 'no-cache' }
+      });
+      if (!response.ok) throw new Error('Failed to fetch data');
       const data = await response.json();
       setInventory(data);
+      setError(null);
     } catch (err: any) {
       setError(err.message || 'An error occurred');
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
+
+  useEffect(() => {
+    fetchInventory();
+  }, [fetchInventory]);
 
   const handleEditClick = (item: InventoryItem) => {
     setEditingId(item.id);
@@ -57,36 +63,48 @@ const InventoryList: React.FC = () => {
   };
 
   const handleSaveEdit = async (id: number) => {
+    // === Optimistic UI: อัปเดต UI ทันที ===
+    const updated = { ...editForm as InventoryItem };
+    prevInventoryRef.current = inventory;
+    setInventory(prev => prev.map(item => item.id === id ? { ...item, ...updated } : item));
+    setEditingId(null);
+
     try {
-      const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:3002';
       const response = await fetch(`${apiUrl}/api/inventory/update/${id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(editForm),
       });
       if (!response.ok) throw new Error('Failed to update item');
-
-      setInventory(inventory.map((item) => (item.id === id ? { ...item, ...editForm as InventoryItem } : item)));
-      setEditingId(null);
+      // ไม่ต้อง refetch — UI อัปเดตไปแล้ว
     } catch (err: any) {
+      // Server error → revert กลับ
+      setInventory(prevInventoryRef.current);
+      setEditingId(id);
+      setEditForm(updated);
       alert(err.message || 'Error updating item');
     }
   };
 
   const handleDelete = async (id: number) => {
     if (!window.confirm('คุณแน่ใจหรือไม่ว่าต้องการลบรายการนี้?')) return;
+
+    // === Optimistic UI: ลบออกจาก UI ทันที ===
+    prevInventoryRef.current = inventory;
+    setInventory(prev => prev.filter(item => item.id !== id));
+
     try {
-      const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:3002';
       const response = await fetch(`${apiUrl}/api/inventory/delete/${id}`, {
         method: 'DELETE',
       });
       if (!response.ok) throw new Error('Failed to delete item');
-
-      setInventory(inventory.filter((item) => item.id !== id));
     } catch (err: any) {
+      // Server error → เอากลับมา
+      setInventory(prevInventoryRef.current);
       alert(err.message || 'Error deleting item');
     }
   };
+
 
   if (loading) return <div className="loading-state">กำลังโหลดข้อมูล...</div>;
   if (error) return <div className="error-state">Error: {error}</div>;

@@ -13,17 +13,29 @@ interface TireData {
   remarks: string;
 }
 
-const TireInventoryForm: React.FC = () => {
-  const [formData, setFormData] = useState<TireData>({
-    brand: '',
-    model: '',
-    tire_size: '',
-    manufacturing_year: '',
-    unit_price: '',
-    purchased_qty: '',
-    sold_qty: '',
-    remarks: ''
-  });
+interface Props {
+  onSaved?: () => void; // callback เพื่อ refresh list
+}
+
+const EMPTY_FORM: TireData = {
+  brand: '',
+  model: '',
+  tire_size: '',
+  manufacturing_year: '',
+  unit_price: '',
+  purchased_qty: '',
+  sold_qty: '',
+  remarks: ''
+};
+
+const TireInventoryForm: React.FC<Props> = ({ onSaved }) => {
+  const [formData, setFormData] = useState<TireData>(EMPTY_FORM);
+  const [toast, setToast] = useState<{ msg: string; type: 'success' | 'error' } | null>(null);
+
+  const showToast = (msg: string, type: 'success' | 'error') => {
+    setToast({ msg, type });
+    setTimeout(() => setToast(null), 3000);
+  };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
@@ -45,36 +57,32 @@ const TireInventoryForm: React.FC = () => {
     try {
       const response = await fetch(`${apiUrl}/api/inventory/insert`, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(formData),
       });
 
       if (response.ok) {
-        alert('บันทึกข้อมูลเรียบร้อยแล้ว!');
-        // Reset form after successful submission
-        setFormData({
-          brand: '',
-          model: '',
-          tire_size: '',
-          manufacturing_year: '',
-          unit_price: '',
-          purchased_qty: '',
-          sold_qty: '',
-          remarks: ''
-        });
+        setFormData(EMPTY_FORM); // reset form ทันที
+        showToast('บันทึกข้อมูลเรียบร้อยแล้ว!', 'success');
+        onSaved?.(); // แจ้ง parent ให้ refresh list
       } else {
-        alert('เกิดข้อผิดพลาดในการบันทึกข้อมูล (Server Error)');
+        showToast('เกิดข้อผิดพลาดในการบันทึกข้อมูล (Server Error)', 'error');
       }
     } catch (error) {
       console.error('Error submitting data:', error);
-      alert('เกิดข้อผิดพลาดในการเชื่อมต่อ (Network Error)');
+      showToast('เกิดข้อผิดพลาดในการเชื่อมต่อ (Network Error)', 'error');
     }
   };
 
   return (
     <div className="form-container">
+      {/* Toast notification */}
+      {toast && (
+        <div className={`form-toast form-toast--${toast.type}`}>
+          {toast.msg}
+        </div>
+      )}
+
       <div className="form-header">
         <h2>Tire Inventory</h2>
         <p>บันทึกข้อมูลสินค้าคงคลังยางรถยนต์</p>
@@ -117,7 +125,7 @@ const TireInventoryForm: React.FC = () => {
             type="text"
             id="model"
             name="model"
-            placeholder="e.g. Primacy 4"
+            placeholder="กรุณากรอกชื่อรุ่น"
             value={formData.model}
             onChange={handleChange}
             required
@@ -130,7 +138,7 @@ const TireInventoryForm: React.FC = () => {
             type="text"
             id="tire_size"
             name="tire_size"
-            placeholder="e.g. 215/55R17"
+            placeholder="215/55R17"
             value={formData.tire_size}
             onChange={handleChange}
             required
@@ -143,7 +151,7 @@ const TireInventoryForm: React.FC = () => {
             type="text"
             id="manufacturing_year"
             name="manufacturing_year"
-            placeholder="e.g. 2023"
+            placeholder="2023"
             value={formData.manufacturing_year}
             onChange={handleChange}
             required
@@ -156,7 +164,7 @@ const TireInventoryForm: React.FC = () => {
             type="text"
             id="unit_price"
             name="unit_price"
-            placeholder="e.g. 4500 หรือ ข้อความ"
+            placeholder="4500 หรือ ข้อความ"
             value={formData.unit_price}
             onChange={handleChange}
             required
@@ -169,7 +177,7 @@ const TireInventoryForm: React.FC = () => {
             type="number"
             id="purchased_qty"
             name="purchased_qty"
-            placeholder="e.g. 10"
+            placeholder="10"
             value={formData.purchased_qty}
             onChange={handleChange}
             min="0"
@@ -183,7 +191,7 @@ const TireInventoryForm: React.FC = () => {
             type="number"
             id="sold_qty"
             name="sold_qty"
-            placeholder="e.g. 0"
+            placeholder="0"
             value={formData.sold_qty}
             onChange={handleChange}
             min="0"
@@ -196,7 +204,7 @@ const TireInventoryForm: React.FC = () => {
           <textarea
             id="remarks"
             name="remarks"
-            placeholder="e.g. Lot 1"
+            placeholder="กรุณากรอกข้อความ"
             value={formData.remarks}
             onChange={handleChange}
             rows={3}
