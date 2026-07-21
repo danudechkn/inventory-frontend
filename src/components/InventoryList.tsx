@@ -152,7 +152,6 @@ const InventoryList: React.FC = () => {
         <table className="inventory-table">
           <thead>
             <tr>
-              <th>ID</th>
               <th>Brand / ยี่ห้อ</th>
               <th>Model / รุ่น</th>
               <th>Size / ขนาดยาง</th>
@@ -168,14 +167,13 @@ const InventoryList: React.FC = () => {
           <tbody>
             {filteredInventory.length === 0 ? (
               <tr>
-                <td colSpan={10} className="empty-state">ไม่พบข้อมูลที่ค้นหา</td>
+                <td colSpan={9} className="empty-state">ไม่พบข้อมูลที่ค้นหา</td>
               </tr>
             ) : (
               filteredInventory.map((item) => {
                 const isEditing = editingId === item.id;
                 return (
                   <tr key={item.id}>
-                    <td>{item.id}</td>
                     {isEditing ? (
                       <>
                         <td><input type="text" value={editForm.brand || ''} onChange={(e) => setEditForm({ ...editForm, brand: e.target.value })} className="edit-input" /></td>
